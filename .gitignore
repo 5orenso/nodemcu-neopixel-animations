@@ -27,3 +27,8 @@
 *.exe
 *.out
 *.app
+
+# PlatformIO stuff
+.pioenvs
+.piolibdeps
+platformio.ini
