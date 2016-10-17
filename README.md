@@ -1,5 +1,8 @@
 # nodemcu-neopixel-animations
 
+This is work in progress. I've just uploaded my CRUD project files for now. Please be patient with me.
+
+
 ### TL;DR
 ```bash
 $ cp ./platformio-dist.ini platformio.ini
