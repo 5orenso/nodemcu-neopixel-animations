@@ -27,6 +27,8 @@ class NeoPixelAnimations {
         theaterChaseRainbowWheelPos,
         // rainbowCycle
         rainbowCycleWheelPos,
+        // fire
+        fireInit,
         // bouncing
         bouncingInit,
         bouncingStartHeight,
@@ -49,7 +51,7 @@ class NeoPixelAnimations {
         ;
     byte
         // fire
-        heat[]
+        *heat
         ;
 
     public:

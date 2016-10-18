@@ -25,7 +25,8 @@ NeoPixelAnimations::NeoPixelAnimations(Adafruit_NeoPixel &pixelsInput, int pixel
     // rainbowCycle
     rainbowCycleWheelPos = 0;
     // fire
-    heat[pixelCount];
+    fireInit = 0;
+    // heat[pixelCount];
     // bouncing
     bouncingInit = 0;
     bouncingStartHeight = 1;
@@ -286,6 +287,11 @@ void NeoPixelAnimations::rainbowCycle(int direction, int speed, int brightness) 
 */
 void NeoPixelAnimations::fire(int cooling, int sparking) {
     int cooldown;
+    // heat[pixelCount];
+    if (fireInit != 1) {
+        heat = new byte[numPixels];
+        fireInit = 1;
+    }
     // Step 1.  Cool down every cell a little
     for (int i = 0; i < numPixels; i++) {
         cooldown = random(0, ((cooling * 10) / numPixels) + 2);
