@@ -15,9 +15,9 @@ NeoPixelAnimations neopixelSet1 = NeoPixelAnimations(pixels1, NUMPIXELS_1);
  // Current animation effect
 int  mode = 0;
  // Current color
-int  r = 50,
-     g = 50,
-     b = 50;
+int  r = 100,
+     g = 100,
+     b = 100;
 // Timers
 int prevTime,
     lastLoop1;
@@ -36,7 +36,7 @@ void loop() {
         case 0: {
             if (now - lastLoop1 > 10) {
                 lastLoop1 = now;
-                neopixelSet1.bouncing(50, 50, 0, 4);
+                neopixelSet4.bouncing(255, 20, 147, 4);
             }
             break;
         }
@@ -94,7 +94,7 @@ void loop() {
             }
         }
         case 9: {
-            if (now - lastLoop1 > 20) {
+            if (now - lastLoop1 > 10) {
                 lastLoop1 = now;
                 neopixelSet1.fire(50, 120);
             }
