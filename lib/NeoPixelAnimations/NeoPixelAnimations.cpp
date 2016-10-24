@@ -66,7 +66,7 @@ void NeoPixelAnimations::runningLight(int red, int green, int blue, int sizeOfSn
   Spark on black background:
     neopixelSet1.randomSpark(r, g, b, 0, 0, 0)
 */
-void NeoPixelAnimations::randomSpark(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue) {
+void NeoPixelAnimations::randomSpark(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking) {
     int color_r = red,
         color_g = green,
         color_b = blue;
@@ -80,7 +80,9 @@ void NeoPixelAnimations::randomSpark(int red, int green, int blue, int bgRed, in
         randomSparkFlag = 1;
     }
     setAll(bgRed, bgGreen, bgBlue);
-    pixels.setPixelColor(randomSparkIndex, color_r, color_g, color_b);
+    if (random(255) < sparking) {
+        pixels.setPixelColor(randomSparkIndex, color_r, color_g, color_b);
+    }
     pixels.show();
 }
 
@@ -319,7 +321,7 @@ void NeoPixelAnimations::fire(int cooling, int sparking) {
 }
 
 /*
-    setPixelHeatColor(j, heat[j]);
+    neopixelSet1.setPixelHeatColor(j, heat[j]);
 */
 void NeoPixelAnimations::setPixelHeatColor(int pixel, byte temperature) {
     // Scale 'heat' down from 0-255 to 0-191
@@ -338,47 +340,53 @@ void NeoPixelAnimations::setPixelHeatColor(int pixel, byte temperature) {
 }
 
 /*
-
+    neopixelSet1.bouncing(255, 20, 147, 4);
 */
-int NeoPixelAnimations::bouncing(int red, int green, int blue, int objectCount) {
-    // float gravity = -9.81;
-    // int startHeight = 1;
-    // float height[objectCount];
-    // float impactVelocityStart = sqrt(-2 * gravity * startHeight);
-    // float impactVelocity[objectCount];
-    // float timeSinceLastBounce[objectCount];
-    // int   position[objectCount];
-    // long  clockTimeSinceLastBounce[objectCount];
-    // float dampening[objectCount];
-
+int NeoPixelAnimations::bouncing(int red, int green, int blue, int objectCount, int randomColor) {
     if (bouncingInit != 1) {
         bouncingPosition = new int[objectCount];
+        bouncingZPosition = new float[objectCount];
         bouncingHeight = new float[objectCount];
         bouncingImpactVelocity = new float[objectCount];
         bouncingTimeSinceLastBounce = new float[objectCount];
         bouncingDampening = new float[objectCount];
         bouncingClockTimeSinceLastBounce = new long[objectCount];
+        bouncingColor = new int*[objectCount];
 
         for (int i = 0; i < objectCount; i++) {
             bouncingClockTimeSinceLastBounce[i] = millis();
             bouncingHeight[i] = bouncingStartHeight;
             bouncingPosition[i] = 0;
+            bouncingZPosition[i] = 1;
             bouncingImpactVelocity[i] = bouncingimpactVelocityStart;
             bouncingTimeSinceLastBounce[i] = 0;
             bouncingDampening[i] = 0.90 - float(i) / pow(objectCount, 2);
+            bouncingColor[i] = new int[3];
+            if (randomColor == 1) {
+                bouncingColor[i][0] = random(50);
+                bouncingColor[i][1] = random(50);
+                bouncingColor[i][2] = random(50);
+            } else {
+                bouncingColor[i][0] = red;
+                bouncingColor[i][1] = green;
+                bouncingColor[i][2] = blue;
+            }
         }
         bouncingInit = 1;
     }
     for (int i = 0; i < objectCount; i++) {
         bouncingTimeSinceLastBounce[i] =  millis() - bouncingClockTimeSinceLastBounce[i];
-        bouncingHeight[i] = 0.5 * bouncingGravity * pow(bouncingTimeSinceLastBounce[i] / 1000, 2.0) +
+        bouncingHeight[i] = 0.5 *
+            bouncingGravity * pow(bouncingTimeSinceLastBounce[i] / 1000, 2.0) +
             bouncingImpactVelocity[i] * bouncingTimeSinceLastBounce[i] / 1000;
+            bouncingZPosition[i] += 0.01;
         if (bouncingHeight[i] < 0) {
+            bouncingZPosition[i] = 1;
             bouncingHeight[i] = 0;
             bouncingImpactVelocity[i] = bouncingDampening[i] * bouncingImpactVelocity[i];
             bouncingClockTimeSinceLastBounce[i] = millis();
 
-            if (bouncingImpactVelocity[i] < 0.01) {
+            if (bouncingImpactVelocity[i] < 0.1) {
                 bouncingImpactVelocity[i] = bouncingimpactVelocityStart;
             }
         }
@@ -387,7 +395,13 @@ int NeoPixelAnimations::bouncing(int red, int green, int blue, int objectCount) 
 
     setAll(0, 0, 0);
     for (int i = 0; i < objectCount; i++) {
-        pixels.setPixelColor(bouncingPosition[i], red, green, blue);
+        // pixels.setPixelColor(bouncingPosition[i], red, green, blue);
+        pixels.setPixelColor(
+            bouncingPosition[i],
+            round(bouncingColor[i][0] / bouncingZPosition[i]),
+            round(bouncingColor[i][1] / bouncingZPosition[i]),
+            round(bouncingColor[i][2] / bouncingZPosition[i])
+        );
     }
     pixels.show();
     return bouncingPosition[0];

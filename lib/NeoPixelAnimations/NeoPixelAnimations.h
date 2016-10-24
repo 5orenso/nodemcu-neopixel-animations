@@ -32,7 +32,8 @@ class NeoPixelAnimations {
         // bouncing
         bouncingInit,
         bouncingStartHeight,
-        *bouncingPosition
+        *bouncingPosition,
+        **bouncingColor
         ;
     float
         // fadeInOut
@@ -40,6 +41,7 @@ class NeoPixelAnimations {
         // bouncing
         bouncingGravity,
         bouncingimpactVelocityStart,
+        *bouncingZPosition,
         *bouncingHeight,
         *bouncingImpactVelocity,
         *bouncingTimeSinceLastBounce,
@@ -57,7 +59,7 @@ class NeoPixelAnimations {
     public:
         NeoPixelAnimations(Adafruit_NeoPixel &pixelsInput, int pixelCount);
         void runningLight(int red, int green, int blue, int sizeOfSnake);
-        void randomSpark(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue);
+        void randomSpark(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking);
         void setAll(int red, int green, int blue);
         void fadeInOut(int red, int green, int blue, int speed);
         void strobe(int red, int green, int blue, int totalStrobes, int delayPeriods);
@@ -68,7 +70,7 @@ class NeoPixelAnimations {
         void rainbowCycle(int direction, int speed, int brightness);
         void fire(int cooling, int sparking);
         void setPixelHeatColor(int Pixel, byte temperature);
-        int bouncing(int red, int green, int blue, int objectCount);
+        int bouncing(int red, int green, int blue, int objectCount, int randomColor);
 };
 
 #endif // NEOPIXEL_ANIMATIONS_H
