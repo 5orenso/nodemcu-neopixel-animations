@@ -20,6 +20,9 @@ class NeoPixelAnimations {
         // cylonBounce
         cylonBounceOffset,
         cylonBounceDirection,
+        // comet
+        cometOffset,
+        cometDirection,
         // theaterChase
         theaterChaseOffset,
         // theaterChaseRainbow
@@ -64,6 +67,7 @@ class NeoPixelAnimations {
         void fadeInOut(int red, int green, int blue, int speed);
         void strobe(int red, int green, int blue, int totalStrobes, int delayPeriods);
         void cylonBounce(int red, int green, int blue, int eyeSize);
+        void comet(int red, int green, int blue, int cometSize, int cometTailSize);
         void theaterChase(int red, int green, int blue, int direction);
         void theaterChaseRainbow(int direction, int speed, int brightness);
         byte* wheel(int wheelPos);

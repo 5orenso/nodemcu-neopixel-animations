@@ -18,9 +18,9 @@ Weee :-)
 # NeoPixelAnimations library
 
 Library is:
-* designed to be able to run several animations at the same time on different databusses.
+* designed to be able to run several animations at the same time on different databusses. Example in `examples/main-3-databus.cpp`.
 * suited for your halloween dress.
-* suited for NeoPixel led strips.
+* suited for NeoPixel led strips, rings, bars and other kind of led chains.
 
 ... more to come.
 

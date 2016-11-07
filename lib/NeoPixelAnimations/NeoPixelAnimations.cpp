@@ -153,11 +153,15 @@ void NeoPixelAnimations::strobe(int red, int green, int blue, int totalStrobes, 
 */
 void NeoPixelAnimations::cylonBounce(int red, int green, int blue, int eyeSize) {
     setAll(0, 0, 0);
-    pixels.setPixelColor(cylonBounceOffset, red/10, green/10, blue/10);
-    for (int j = 1; j <= eyeSize; j++) {
+    for (int a = 2; a > 0; a--) {
+        pixels.setPixelColor(cylonBounceOffset - a, red / (a * 5), green / (a * 5), blue / (a * 5));
+    }
+    for (int j = 0; j < eyeSize; j++) {
         pixels.setPixelColor(cylonBounceOffset + j, red, green, blue);
     }
-    pixels.setPixelColor(cylonBounceOffset + eyeSize, red/10, green/10, blue/10);
+    for (int b = 1; b <= 2; b++) {
+        pixels.setPixelColor(cylonBounceOffset - 1 + eyeSize + b, red / (b * 5), green / (b * 5), blue / (b * 5));
+    }
     pixels.show();
     if (cylonBounceDirection == 1) {
         cylonBounceOffset--;
@@ -170,6 +174,36 @@ void NeoPixelAnimations::cylonBounce(int red, int green, int blue, int eyeSize) 
         cylonBounceDirection = 0;
     }
 }
+
+/*
+    neopixelSet1.comet(r, g, b, 2, 8);
+*/
+void NeoPixelAnimations::comet(int red, int green, int blue, int cometSize, int cometTailSize) {
+    setAll(0, 0, 0);
+    for (int a = 0; a < cometSize; a++) {
+        pixels.setPixelColor(cometOffset + a, red, green, blue);
+    }
+    for (int j = 0; j < cometTailSize; j++) {
+        int bright = random(2, 100);
+        if (cometDirection == 1) {            
+            pixels.setPixelColor(cometOffset + cometSize + j, red / bright, green / bright, blue / bright);
+        } else {
+            pixels.setPixelColor(cometOffset - j, red / bright, green / bright, blue / bright);
+        }
+    }
+    pixels.show();
+    if (cometDirection == 1) {
+        cometOffset--;
+    } else {
+        cometOffset++;
+    }
+    if (cometOffset > numPixels - cometSize - 2) {
+        cometDirection = 1;
+    } else if (cometOffset < 0 + 1) {
+        cometDirection = 0;
+    }
+}
+
 
 /*
     neopixelSet1.theaterChase(r, g, b, 1);

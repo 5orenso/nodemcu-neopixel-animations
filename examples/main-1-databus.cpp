@@ -36,7 +36,7 @@ void loop() {
         case 0: {
             if (now - lastLoop1 > 10) {
                 lastLoop1 = now;
-                neopixelSet4.bouncing(255, 20, 147, 4);
+                neopixelSet1.bouncing(255, 20, 147, 4, 0);
             }
             break;
         }
@@ -51,8 +51,9 @@ void loop() {
         case 2: {
             if (now - lastLoop1 > 10) {
                 lastLoop1 = now;
-                neopixelSet1.randomSpark(r, g, b, 10, 10, 10);
+                neopixelSet1.randomSpark(r, g, b, 10, 10, 10, 20);
             }
+            break;
         }
         case 3: {
             if (now - lastLoop1 > 10) {
@@ -80,24 +81,28 @@ void loop() {
                 lastLoop1 = now;
                 neopixelSet1.theaterChase(r, g, b, 1);
             }
+            break;
         }
         case 7: {
             if (now - lastLoop1 > 100) {
                 lastLoop1 = now;
                 neopixelSet1.theaterChaseRainbow(1, 10, 10);
             }
+            break;
         }
         case 8: {
             if (now - lastLoop1 > 50) {
                 lastLoop1 = now;
                 neopixelSet1.rainbowCycle(1, 3, 10);
             }
+            break;
         }
         case 9: {
             if (now - lastLoop1 > 10) {
                 lastLoop1 = now;
                 neopixelSet1.fire(50, 120);
             }
+            break;
         }
 
     }
