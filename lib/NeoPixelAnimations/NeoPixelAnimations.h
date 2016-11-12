@@ -64,6 +64,7 @@ class NeoPixelAnimations {
         void runningLight(int red, int green, int blue, int sizeOfSnake);
         void randomSpark(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking);
         void setAll(int red, int green, int blue);
+        void setRange(int red, int green, int blue, int start, int end);
         void fadeInOut(int red, int green, int blue, int speed);
         void strobe(int red, int green, int blue, int totalStrobes, int delayPeriods);
         void cylonBounce(int red, int green, int blue, int eyeSize);

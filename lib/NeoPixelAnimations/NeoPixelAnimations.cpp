@@ -95,6 +95,19 @@ void NeoPixelAnimations::setAll(int red, int green, int blue) {
     for(int i = 0; i < numPixels; i++ ) {
         pixels.setPixelColor(i, red, green, blue);
     }
+    pixels.show();
+}
+
+/*
+  Set range of pixels to a specific color.
+    neopixelSet1.setRange(r, g, b, start, end)
+*/
+void NeoPixelAnimations::setRange(int red, int green, int blue, int start, int end) {
+    // Serial.print("red="); Serial.print(red); Serial.print(", green="); Serial.print(green); Serial.print(", blue="); Serial.println(blue);
+    for(int i = start; i < end; i++ ) {
+        pixels.setPixelColor(i, red, green, blue);
+    }
+    pixels.show();
 }
 
 /*
@@ -106,7 +119,7 @@ void NeoPixelAnimations::fadeInOut(int red, int green, int blue, int speed) {
     g = (fadeInOutCounter / 256) * green;
     b = (fadeInOutCounter / 256) * blue;
     setAll(round(r), round(g), round(b));
-    pixels.show();
+    // pixels.show();
 
     if (fadeInOutDirection < 1) {
         fadeInOutCounter += speed;
@@ -137,7 +150,7 @@ void NeoPixelAnimations::strobe(int red, int green, int blue, int totalStrobes, 
         strobeOnFlag = 0;
     }
     setAll(r, g, b);
-    pixels.show();
+    // pixels.show();
     strobeCounter++;
     if (strobeCounter > (totalStrobes * 2)) {
         strobeOnFlag = 0;
@@ -185,7 +198,7 @@ void NeoPixelAnimations::comet(int red, int green, int blue, int cometSize, int 
     }
     for (int j = 0; j < cometTailSize; j++) {
         int bright = random(2, 100);
-        if (cometDirection == 1) {            
+        if (cometDirection == 1) {
             pixels.setPixelColor(cometOffset + cometSize + j, red / bright, green / bright, blue / bright);
         } else {
             pixels.setPixelColor(cometOffset - j, red / bright, green / bright, blue / bright);
