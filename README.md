@@ -4,7 +4,7 @@ __This is work in progress. I've just uploaded my CRUD project files for now. Pl
 
 ### TL;DR
 
-* Hook up your NeoPixel to `D5`.
+* Hook up your NeoPixel to `D7`.
 * Adjust `NUMPIXELS_1` to the number of leds on your led strip or chain.
 * Run a couple of commands:
 ```bash
@@ -17,12 +17,24 @@ Weee :-)
 
 # NeoPixelAnimations library
 
-Library is:
-* designed to be able to run several animations at the same time on different databusses. Example in `examples/main-3-databus.cpp`.
-* suited for your halloween dress.
-* suited for NeoPixel led strips, rings, bars and other kind of led chains.
+### Library is:
 
+* Designed to be able to run several animations at the same time on different databusses. Example in [examples/main-3-databus.cpp](examples/main-3-databus.cpp).
+* Suited for your halloween dress. Example in [examples/main-1-databus-dress.cpp](examples/main-1-databus-dress.cpp)
+* Suited for NeoPixel led strips, rings, bars and other kind of led chains.
+* Suited for [WS2811 12mm diffused led chains](https://www.aliexpress.com/item/50-Pcs-string-12mm-WS2811-2811-IC-RGB-LED-Pixels-Module-String-Light-Black-Wire-cable/1854864234.html?spm=2114.13010608.0.0.N5H7Hk)  [examples/main-1-databus-xmas-tree.cpp](examples/main-1-databus-xmas-tree.cpp)
+* Suited for toilet light display via MQTT [examples/main-1-databus-toilet-light.cpp](examples/main-1-databus-toilet-light.cpp)
 ... more to come.
 
-# Contribute
+
+## Other resources
+
+* [Getting started with Arduino, NodeMCU or Wemos D1 mini](https://github.com/5orenso/arduino-getting-started)
+* [Toilet project sensors](https://github.com/5orenso/nodemcu-mqtt-toilet-project)
+* [Toilet project display](https://github.com/5orenso/nodemcu-mqtt-toilet-project-display)
+* [Bitbar toilet menu plugin](https://github.com/TeliaSoneraNorge/iot-hackaton-toilet-u1-bitbar)
+
+
+## Contribute
+
 Please contribute with pull-requests.
