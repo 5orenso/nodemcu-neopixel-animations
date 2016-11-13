@@ -115,9 +115,9 @@ void NeoPixelAnimations::setRange(int red, int green, int blue, int start, int e
 */
 void NeoPixelAnimations::fadeInOut(int red, int green, int blue, int speed) {
     float r, g, b;
-    r = (fadeInOutCounter / 256) * red;
-    g = (fadeInOutCounter / 256) * green;
-    b = (fadeInOutCounter / 256) * blue;
+    r = (fadeInOutCounter / 255) * red;
+    g = (fadeInOutCounter / 255) * green;
+    b = (fadeInOutCounter / 255) * blue;
     setAll(round(r), round(g), round(b));
     // pixels.show();
 
@@ -126,7 +126,7 @@ void NeoPixelAnimations::fadeInOut(int red, int green, int blue, int speed) {
     } else {
         fadeInOutCounter -= speed * 2;
     }
-    if (fadeInOutCounter > 255) {
+    if (fadeInOutCounter >= 255) {
         fadeInOutDirection = 1;
     } else if (fadeInOutCounter <= 0) {
         fadeInOutCounter = 0;
