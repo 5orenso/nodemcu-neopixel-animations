@@ -7,7 +7,7 @@
 
 #define DEBUG false
 #define VERBOSE true
-
+ad
 #define DEEP_SLEEP false
 
 #define LISTEN_TO_CHIP 1607191
