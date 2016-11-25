@@ -7,13 +7,16 @@
 
 #define DEBUG false
 #define VERBOSE true
-ad
 #define DEEP_SLEEP false
 
 #define LISTEN_TO_CHIP 1607191
 
 #define PUBLISH_INTERVAL 30
 #define SLEEP_DELAY_IN_SECONDS  30
+
+#define PIN_GREEN_LED D1
+#define PIN_RED_LED D2
+#define PIN_YELLOW_LED D3
 
 #define NUMPIXELS_1 54
 #define PIN_1 D7
@@ -103,18 +106,27 @@ void callback(char* topic, byte* payload, unsigned int length) {
             if (VERBOSE) {
                 Serial.println("Red light on!");
             }
+            digitalWrite(PIN_GREEN_LED, 0);
+            digitalWrite(PIN_RED_LED, 1);
             // neopixelSet1.setRange(20, 20, 0, 0, 18); // Yellow
             // neopixelSet1.setRange(0, 0, 0, 18, 36); // Green off
             // neopixelSet1.setRange(80, 0, 0, 36, 54); // Red
-            neopixelSet1.setRange(80, 0, 0, 18, 54); // Red
+            float factor = .1;
+            neopixelSet1.setRange((int)(227 * factor), (int)(46 * factor), (int)(54 * factor), 45, 54); // Telia Purple
+            neopixelSet1.setRange(60, 0, 0, 9, 45); // Red
         } else if (switchStatus == 1) {
             if (VERBOSE) {
                 Serial.println("Green light on!");
             }
+            digitalWrite(PIN_GREEN_LED, 1);
+            digitalWrite(PIN_RED_LED, 0);
             // neopixelSet1.setRange(20, 20, 0, 0, 18); // Yellow
             // neopixelSet1.setRange(0, 80, 0, 18, 36); // Green
             // neopixelSet1.setRange(0, 0, 0, 36, 54); // Red off
-            neopixelSet1.setRange(0, 80, 0, 18, 54); // Green
+            // #9A0BE3 154	11	227
+            float factor = .1;
+            neopixelSet1.setRange((int)(227 * factor), (int)(46 * factor), (int)(54 * factor), 45, 54); // Telia Purple
+            neopixelSet1.setRange(0, 60, 0, 9, 45); // Green
         }
 
         // Are someone in line
@@ -122,12 +134,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
             if (VERBOSE) {
                 Serial.println("Yellow light on!");
             }
-            neopixelSet1.setRange(20, 20, 0, 0, 18); // Yellow
+            digitalWrite(PIN_YELLOW_LED, 1);
+            float factor = .2;
+            neopixelSet1.setRange((int)(255 * factor), (int)(165 * factor), (int)(0 * factor), 0, 9); // Yellow
         } else if (motionStatus == 1) {
             if (VERBOSE) {
                 Serial.println("Yellow light off!");
             }
-            neopixelSet1.setRange(0, 0, 0, 0, 18); // Yellow
+            digitalWrite(PIN_YELLOW_LED, 0);
+            neopixelSet1.setRange(0, 0, 0, 0, 9); // Yellow
         }
 
     }
@@ -159,6 +174,9 @@ void reconnect() {
 
 void setup() {
     Serial.begin(115200);
+    pinMode(PIN_GREEN_LED, OUTPUT);
+    pinMode(PIN_RED_LED, OUTPUT);
+    pinMode(PIN_YELLOW_LED, OUTPUT);
     pinMode(D7, OUTPUT);
     pinMode(D8, OUTPUT);
 	pixels1.begin();
