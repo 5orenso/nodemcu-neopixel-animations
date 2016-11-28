@@ -4,7 +4,7 @@
 
 #define NUMPIXELS_1 100
 #define PIN_1 D7
-#define TOTAL_EFFECTS 8
+#define TOTAL_EFFECTS 9
 #define DELAY_BETWEEN_EFFECTS 15000
 
 // Adafruit_NeoPixel pixels1 = Adafruit_NeoPixel(NUMPIXELS_1, PIN_1, NEO_GRB + NEO_KHZ800);
@@ -64,6 +64,7 @@ int clear_blue_sky_r = 64,
     clear_blue_sky_g = 156,
     clear_blue_sky_b = 255;
 
+int sparkIntensity = 10;
 
 // Timers
 int prevTime,
@@ -116,7 +117,7 @@ void loop() {
             if (now - lastLoop2 > 10) {
                 lastLoop2 = now;
                 float factor = .7;
-                neopixelSet1.randomSpark(r, g, b, (int)(candle_r * factor), (int)(candle_g * factor), (int)(candle_b * factor), 5);
+                neopixelSet1.randomSpark(r, g, b, (int)(candle_r * factor), (int)(candle_g * factor), (int)(candle_b * factor), sparkIntensity);
             }
             break;
         }
@@ -125,7 +126,7 @@ void loop() {
             if (now - lastLoop1 > 10) {
                 lastLoop1 = now;
                 float factor = .5;
-                neopixelSet1.randomSpark(r, g, b, (int)(candle_r * factor), (int)(candle_g * factor), (int)(candle_b * factor), 5);
+                neopixelSet1.randomSpark(r, g, b, (int)(candle_r * factor), (int)(candle_g * factor), (int)(candle_b * factor), sparkIntensity);
             }
             break;
         }
@@ -133,7 +134,7 @@ void loop() {
             if (now - lastLoop1 > 10) {
                 lastLoop1 = now;
                 float factor = .3;
-                neopixelSet1.randomSpark(r, g, b, (int)(candle_r * factor), (int)(candle_g * factor), (int)(candle_b * factor), 5);
+                neopixelSet1.randomSpark(r, g, b, (int)(candle_r * factor), (int)(candle_g * factor), (int)(candle_b * factor), sparkIntensity);
             }
             break;
         }
@@ -141,7 +142,7 @@ void loop() {
             if (now - lastLoop1 > 10) {
                 lastLoop1 = now;
                 float factor = .5;
-                neopixelSet1.randomSpark(r, g, b, (int)(tungsten_40w_r * factor), (int)(tungsten_40w_g * factor), (int)(tungsten_40w_b * factor), 5);
+                neopixelSet1.randomSpark(r, g, b, (int)(tungsten_40w_r * factor), (int)(tungsten_40w_g * factor), (int)(tungsten_40w_b * factor), sparkIntensity);
             }
             break;
         }
@@ -149,7 +150,7 @@ void loop() {
             if (now - lastLoop1 > 10) {
                 lastLoop1 = now;
                 float factor = .5;
-                neopixelSet1.randomSpark(r, g, b, (int)(halogen_r * factor), (int)(halogen_g * factor), (int)(halogen_b * factor), 5);
+                neopixelSet1.randomSpark(r, g, b, (int)(halogen_r * factor), (int)(halogen_g * factor), (int)(halogen_b * factor), sparkIntensity);
             }
             break;
         }
@@ -157,7 +158,7 @@ void loop() {
             if (now - lastLoop1 > 10) {
                 lastLoop1 = now;
                 float factor = .5;
-                neopixelSet1.randomSpark(r, g, b, (int)(clear_blue_sky_r * factor), (int)(clear_blue_sky_g * factor), (int)(clear_blue_sky_b * factor), 5);
+                neopixelSet1.randomSpark(r, g, b, (int)(clear_blue_sky_r * factor), (int)(clear_blue_sky_g * factor), (int)(clear_blue_sky_b * factor), sparkIntensity);
             }
             break;
         }
