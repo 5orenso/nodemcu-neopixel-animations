@@ -2,12 +2,13 @@
 #include <Adafruit_NeoPixel.h>
 #include <math.h>
 
-#define NUMPIXELS_1 54
+#define NUMPIXELS_1 100
 #define PIN_1 D7
-#define TOTAL_EFFECTS 1
+#define TOTAL_EFFECTS 11
 #define DELAY_BETWEEN_EFFECTS 15000
 
-Adafruit_NeoPixel pixels1 = Adafruit_NeoPixel(NUMPIXELS_1, PIN_1, NEO_GRB + NEO_KHZ800);
+// Adafruit_NeoPixel pixels1 = Adafruit_NeoPixel(NUMPIXELS_1, PIN_1, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels1 = Adafruit_NeoPixel(NUMPIXELS_1, PIN_1, NEO_RGB + NEO_KHZ800);
 
 #include <NeoPixelAnimations.h>
 NeoPixelAnimations neopixelSet1 = NeoPixelAnimations(pixels1, NUMPIXELS_1);
