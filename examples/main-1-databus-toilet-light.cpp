@@ -1,15 +1,19 @@
 #include <Adafruit_NeoPixel.h>
+#include <NeoPixelAnimations.h>
 #include <math.h>
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
 #define DEBUG false
 #define VERBOSE true
 #define DEEP_SLEEP false
-
-#define LISTEN_TO_CHIP 1607191
 
 #define PUBLISH_INTERVAL 30
 #define SLEEP_DELAY_IN_SECONDS  30
@@ -37,16 +41,10 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 long lastRun = millis();
 char msg[150];
-int chipId = ESP.getChipId();
-
+int nodemcuChipId = ESP.getChipId();
 
 Adafruit_NeoPixel pixels1 = Adafruit_NeoPixel(NUMPIXELS_1, PIN_1, NEO_GRB + NEO_KHZ800);
-
-#include <NeoPixelAnimations.h>
 NeoPixelAnimations neopixelSet1 = NeoPixelAnimations(pixels1, NUMPIXELS_1);
-
- // Current animation effect
-int  mode = 0;
 
 // Timers
 int prevTime,
@@ -54,23 +52,65 @@ int prevTime,
     lastLoop2,
     lastLoop3;
 
-void setup_wifi() {
+void setupWifi() {
     delay(10);
     // We start by connecting to a WiFi network
     Serial.println();
     Serial.print("Connecting to ");
     Serial.println(ssid);
 
-    WiFi.begin(ssid, password);
+    // OTA wifi setting
+    WiFi.mode(WIFI_STA);
 
+    WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED) {
         Serial.print("."); Serial.print(ssid);
         delay(500);
     }
-
     randomSeed(micros());
-
     Serial.println("");
+
+    // OTA start
+    // Port defaults to 8266
+    // ArduinoOTA.setPort(8266);
+
+    // Hostname defaults to esp8266-[ChipID]
+    // ArduinoOTA.setHostname("myesp8266");
+
+    // No authentication by default
+    // ArduinoOTA.setPassword("admin");
+
+    // Password can be set with it's md5 value as well
+    // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
+    // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
+
+    ArduinoOTA.onStart([]() {
+        String type;
+        if (ArduinoOTA.getCommand() == U_FLASH) {
+            type = "sketch";
+        } else { // U_SPIFFS
+            type = "filesystem";
+        }
+        // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+        Serial.println("Start updating " + type);
+    });
+    ArduinoOTA.onEnd([]() {
+        Serial.println("\nEnd");
+    });
+    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+        Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    });
+    ArduinoOTA.onError([](ota_error_t error) {
+        Serial.printf("Error[%u]: ", error);
+        if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+        else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+        else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+        else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+        else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    });
+    ArduinoOTA.begin();
+    // OTA end
+
     Serial.println("WiFi connected");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
@@ -97,58 +137,82 @@ void callback(char* topic, byte* payload, unsigned int length) {
     int motionStatus = root["motion"];
     if (DEBUG) {
         Serial.println("handleUpdate payload:"); root.prettyPrintTo(Serial); Serial.println();
-        Serial.print("chipId: "); Serial.print(chipId); Serial.print(" switch: "); Serial.println(switchStatus);
+        Serial.print("chipId: "); Serial.print(nodemcuChipId); Serial.print(" switch: "); Serial.println(switchStatus);
     }
 
-    if (LISTEN_TO_CHIP == thisChipId) {
-        // Is it occupied or not?
-        if (switchStatus == 2) {
-            if (VERBOSE) {
-                Serial.println("Red light on!");
-            }
-            digitalWrite(PIN_GREEN_LED, 0);
-            digitalWrite(PIN_RED_LED, 1);
-            // neopixelSet1.setRange(20, 20, 0, 0, 18); // Yellow
-            // neopixelSet1.setRange(0, 0, 0, 18, 36); // Green off
-            // neopixelSet1.setRange(80, 0, 0, 36, 54); // Red
-            float factor = .1;
-            neopixelSet1.setRange((int)(227 * factor), (int)(46 * factor), (int)(54 * factor), 45, 54); // Telia Purple
-            neopixelSet1.setRange(60, 0, 0, 9, 45); // Red
-        } else if (switchStatus == 1) {
-            if (VERBOSE) {
-                Serial.println("Green light on!");
-            }
-            digitalWrite(PIN_GREEN_LED, 1);
-            digitalWrite(PIN_RED_LED, 0);
-            // neopixelSet1.setRange(20, 20, 0, 0, 18); // Yellow
-            // neopixelSet1.setRange(0, 80, 0, 18, 36); // Green
-            // neopixelSet1.setRange(0, 0, 0, 36, 54); // Red off
-            // #9A0BE3 154	11	227
-            float factor = .1;
-            neopixelSet1.setRange((int)(227 * factor), (int)(46 * factor), (int)(54 * factor), 45, 54); // Telia Purple
-            neopixelSet1.setRange(0, 60, 0, 9, 45); // Green
+    // Is it occupied or not?
+    if (switchStatus == 2) {
+        if (VERBOSE) {
+            Serial.println("Red light on!");
         }
-
-        // Are someone in line
-        if (motionStatus == 2) {
-            if (VERBOSE) {
-                Serial.println("Yellow light on!");
-            }
-            digitalWrite(PIN_YELLOW_LED, 1);
-            float factor = .2;
-            neopixelSet1.setRange((int)(255 * factor), (int)(165 * factor), (int)(0 * factor), 0, 9); // Yellow
-        } else if (motionStatus == 1) {
-            if (VERBOSE) {
-                Serial.println("Yellow light off!");
-            }
-            digitalWrite(PIN_YELLOW_LED, 0);
-            neopixelSet1.setRange(0, 0, 0, 0, 9); // Yellow
+        digitalWrite(PIN_GREEN_LED, 0);
+        digitalWrite(PIN_RED_LED, 1);
+        float factor = .3;
+        neopixelSet1.setRange((int)(227 * factor), (int)(46 * factor), (int)(54 * factor), 45, 54); // Telia Purple
+        neopixelSet1.setRange((int)(255 * factor), (int)(0 * factor), (int)(0 * factor), 9, 45); // Red
+    } else if (switchStatus == 1) {
+        if (VERBOSE) {
+            Serial.println("Green light on!");
         }
+        digitalWrite(PIN_GREEN_LED, 1);
+        digitalWrite(PIN_RED_LED, 0);
+        float factor = .3;
+        neopixelSet1.setRange((int)(227 * factor), (int)(46 * factor), (int)(54 * factor), 45, 54); // Telia Purple
+        neopixelSet1.setRange((int)(0 * factor), (int)(255 * factor), (int)(0 * factor), 9, 45); // Red
+    }
 
+    // Are someone in line
+    if (motionStatus == 2) {
+        if (VERBOSE) {
+            Serial.println("Yellow light on!");
+        }
+        digitalWrite(PIN_YELLOW_LED, 1);
+        float factor = .2;
+        neopixelSet1.setRange((int)(255 * factor), (int)(165 * factor), (int)(0 * factor), 0, 9); // Yellow
+    } else if (motionStatus == 1) {
+        if (VERBOSE) {
+            Serial.println("Yellow light off!");
+        }
+        digitalWrite(PIN_YELLOW_LED, 0);
+        neopixelSet1.setRange(0, 0, 0, 0, 9);
     }
 }
 
-void reconnect() {
+void sendControllerInfo() {
+    if (client.connected()) {
+        // --[ Publish this device to AWS IoT ]----------------------------------------
+        // String nodemcuResetReason = ESP.getResetReason(); // returns String containing the last reset resaon in human readable format.
+        int nodemcuFreeHeapSize = ESP.getFreeHeap(); // returns the free heap size.
+        // Several APIs may be used to get flash chip info:
+        int nodemcuFlashChipId = ESP.getFlashChipId(); // returns the flash chip ID as a 32-bit integer.
+        int nodemcuFlashChipSize = ESP.getFlashChipSize(); // returns the flash chip size, in bytes, as seen by the SDK (may be less than actual size).
+        // int nodemcuFlashChipSpeed = ESP.getFlashChipSpeed(void); // returns the flash chip frequency, in Hz.
+        // int nodemcuCycleCount = ESP.getCycleCount(); // returns the cpu instruction cycle count since start as an unsigned 32-bit. This is useful for accurate timing of very short actions like bit banging.
+        // WiFi.macAddress(mac) is for STA, WiFi.softAPmacAddress(mac) is for AP.
+        // int nodemcuIP; // = WiFi.localIP(); // is for STA, WiFi.softAPIP() is for AP.
+        char msg[150];
+        uint32 ipAddress;
+        char ipAddressFinal[16];
+        ipAddress = WiFi.localIP();
+        if (ipAddress) {
+            const int NBYTES = 4;
+            uint8 octet[NBYTES];
+            for(int i = 0 ; i < NBYTES ; i++) {
+                octet[i] = ipAddress >> (i * 8);
+            }
+            sprintf(ipAddressFinal, "%d.%d.%d.%d", octet[0], octet[1], octet[2], octet[3]);
+        }
+        snprintf(msg, 150, "{ \"chipId\": %d, \"freeHeap\": %d, \"ip\": \"%s\", \"ssid\": \"%s\" }",
+            nodemcuChipId, nodemcuFreeHeapSize, ipAddressFinal, ssid
+        );
+        if (VERBOSE) {
+            Serial.print("Publish message: "); Serial.println(msg);
+        }
+        client.publish(outTopic, msg);
+    }
+}
+
+void reconnectMqtt() {
     // Loop until we're reconnected
     while (!client.connected()) {
         Serial.print("Attempting MQTT connection...");
@@ -158,10 +222,8 @@ void reconnect() {
         // Attempt to connect
         if (client.connect(clientId.c_str())) {
             Serial.println("connected");
-            // Once connected, publish an announcement...
-            // client.publish(outTopic, "{ \"chipId\": chipId, \"ping\": \"hello world\" }");
-            // ... and resubscribe
             client.subscribe(inTopic);
+            sendControllerInfo();
         } else {
             Serial.print("failed, rc=");
             Serial.print(client.state());
@@ -177,29 +239,33 @@ void setup() {
     pinMode(PIN_GREEN_LED, OUTPUT);
     pinMode(PIN_RED_LED, OUTPUT);
     pinMode(PIN_YELLOW_LED, OUTPUT);
-    pinMode(D7, OUTPUT);
-    pinMode(D8, OUTPUT);
+    pinMode(PIN_1, OUTPUT);
 	pixels1.begin();
     prevTime = millis();
     neopixelSet1.setAll(0, 0, 0);
-    setup_wifi();
+    setupWifi();
     client.setServer(mqtt_server, mqtt_port);
     client.setCallback(callback);
 }
 
 void loop() {
+    if (WiFi.status() != WL_CONNECTED) {
+        setupWifi();
+        return;
+    }
     if (!client.connected()) {
-        reconnect();
+        reconnectMqtt();
     }
     client.loop();
+
+    // Listen for OTA requests
+    ArduinoOTA.handle();
+
     long now = millis();
 
     // Stuff to do at given time intervals.
     if (now - lastRun > (PUBLISH_INTERVAL * 1000)) {
         lastRun = now;
-        // if (DEBUG) {
-        //     Serial.print(", Light: "); Serial.print(valueLightChar);
-        // }
 
         if (DEEP_SLEEP) {
             Serial.print("Entering deep sleep mode for "); Serial.print(SLEEP_DELAY_IN_SECONDS); Serial.println(" seconds...");
