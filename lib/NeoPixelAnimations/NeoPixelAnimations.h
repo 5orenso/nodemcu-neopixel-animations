@@ -12,8 +12,12 @@ class NeoPixelAnimations {
         // randomSpark
         randomSparkFlag,
         randomSparkIndex,
+        // randomSparkRange
+        randomSparkRangeFlag,
+        randomSparkRangeIndex,
         // fadeInOut
         fadeInOutDirection,
+        fadeInOutRangeDirection,
         // strobe
         strobeCounter,
         strobeOnFlag,
@@ -41,6 +45,7 @@ class NeoPixelAnimations {
     float
         // fadeInOut
         fadeInOutCounter,
+        fadeInOutRangeCounter,
         // bouncing
         bouncingGravity,
         bouncingimpactVelocityStart,
@@ -62,10 +67,13 @@ class NeoPixelAnimations {
     public:
         NeoPixelAnimations(Adafruit_NeoPixel &pixelsInput, int pixelCount);
         void runningLight(int red, int green, int blue, int sizeOfSnake);
+        void runningLightRange(int red, int green, int blue, int start, int end, int sizeOfSnake);
         void randomSpark(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking);
+        void randomSparkRange(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking, int start, int end);
         void setAll(int red, int green, int blue);
         void setRange(int red, int green, int blue, int start, int end);
         void fadeInOut(int red, int green, int blue, int speed);
+        void fadeInOutRange(int red, int green, int blue, int speed, int minBrightness, int start, int end);
         void strobe(int red, int green, int blue, int totalStrobes, int delayPeriods);
         void cylonBounce(int red, int green, int blue, int eyeSize);
         void comet(int red, int green, int blue, int cometSize, int cometTailSize);

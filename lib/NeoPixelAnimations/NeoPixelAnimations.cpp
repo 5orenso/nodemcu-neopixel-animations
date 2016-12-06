@@ -9,6 +9,9 @@ NeoPixelAnimations::NeoPixelAnimations(Adafruit_NeoPixel &pixelsInput, int pixel
     // randomSpark
     randomSparkFlag = 0;
     randomSparkIndex = 0;
+    // randomSparkRange
+    randomSparkRangeFlag = 0;
+    randomSparkRangeIndex = 0;
     // fadeInOut
     fadeInOutCounter = 0;
     fadeInOutDirection = 0;
@@ -60,6 +63,31 @@ void NeoPixelAnimations::runningLight(int red, int green, int blue, int sizeOfSn
 }
 
 /*
+  Run light with 3 pixel in size.
+    neopixelSet1.runningLight(r, g, b, 3)
+*/
+void NeoPixelAnimations::runningLightRange(int red, int green, int blue, int start, int end, int sizeOfSnake) {
+    for (int i = start; i < end; i++) {
+        int color_r = 0,
+            color_g = 0,
+            color_b = 0;
+        if (i >= runningLightOffset && i < runningLightOffset + sizeOfSnake) {
+            color_r = red;
+            color_g = green;
+            color_b = blue;
+        }
+        // Serial.print("i="); Serial.print(i);
+        // Serial.print(", r="); Serial.print(color_r); Serial.print(", g="); Serial.print(color_g); Serial.print(", b="); Serial.println(color_b);
+        pixels.setPixelColor(i, color_r, color_g, color_b);
+    }
+    pixels.show();
+    runningLightOffset++;
+    if (runningLightOffset > end - sizeOfSnake) {
+        runningLightOffset = 0;
+    }
+}
+
+/*
   Spark on white background:
     neopixelSet1.randomSpark(r, g, b, 10, 10, 10)
 
@@ -87,6 +115,33 @@ void NeoPixelAnimations::randomSpark(int red, int green, int blue, int bgRed, in
 }
 
 /*
+  Spark on white background:
+    neopixelSet1.randomSpark(r, g, b, 10, 10, 10)
+
+  Spark on black background:
+    neopixelSet1.randomSpark(r, g, b, 0, 0, 0)
+*/
+void NeoPixelAnimations::randomSparkRange(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking, int start, int end) {
+    int color_r = red,
+        color_g = green,
+        color_b = blue;
+    if (randomSparkRangeFlag == 1) {
+        randomSparkRangeFlag = 0;
+        color_r = bgRed;
+        color_g = bgGreen;
+        color_b = bgBlue;
+    } else {
+        randomSparkRangeIndex = random(end - start) + start;
+        randomSparkRangeFlag = 1;
+    }
+    setRange(bgRed, bgGreen, bgBlue, start, end);
+    if (random(255) < sparking && (randomSparkRangeIndex >= start && randomSparkRangeIndex <= end)) {
+        pixels.setPixelColor(randomSparkRangeIndex, color_r, color_g, color_b);
+    }
+    pixels.show();
+}
+
+/*
   Set all pixels to a specific color.
     neopixelSet1.setAll(r, g, b)
 */
@@ -104,7 +159,7 @@ void NeoPixelAnimations::setAll(int red, int green, int blue) {
 */
 void NeoPixelAnimations::setRange(int red, int green, int blue, int start, int end) {
     // Serial.print("red="); Serial.print(red); Serial.print(", green="); Serial.print(green); Serial.print(", blue="); Serial.println(blue);
-    for(int i = start; i < end; i++ ) {
+    for(int i = start; i <= end; i++ ) {
         pixels.setPixelColor(i, red, green, blue);
     }
     pixels.show();
@@ -131,6 +186,28 @@ void NeoPixelAnimations::fadeInOut(int red, int green, int blue, int speed) {
     } else if (fadeInOutCounter <= 0) {
         fadeInOutCounter = 0;
         fadeInOutDirection = 0;
+    }
+}
+
+/*
+    neopixelSet1.fadeInOutRange(r, g, b, 3, 50, 1, 5, settings);
+*/
+void NeoPixelAnimations::fadeInOutRange(int red, int green, int blue, int speed, int minBrightness, int start, int end) {
+    float r, g, b;
+    r = (fadeInOutRangeCounter / 255) * red;
+    g = (fadeInOutRangeCounter / 255) * green;
+    b = (fadeInOutRangeCounter / 255) * blue;
+    setRange(round(r), round(g), round(b), start, end);
+    if (fadeInOutRangeDirection < 1) {
+        fadeInOutRangeCounter += speed;
+    } else {
+        fadeInOutRangeCounter -= speed * 2;
+    }
+    if (fadeInOutRangeCounter >= 255) {
+        fadeInOutRangeDirection = 1;
+    } else if (fadeInOutRangeCounter <= minBrightness) {
+        fadeInOutRangeCounter = minBrightness;
+        fadeInOutRangeDirection = 0;
     }
 }
 
