@@ -11,6 +11,8 @@
 #include <ArduinoJson.h>
 #include <NeoPixelAnimations.h>
 
+const char* PACKAGE_NAME = "main-2-databus-toilet-light";
+
 #define DEBUG false
 #define VERBOSE true
 #define PUBLISH_INTERVAL 30
@@ -186,6 +188,15 @@ void sendControllerInfo() {
             Serial.print("Publish message: "); Serial.println(msg);
         }
         client.publish(outTopic, msg);
+
+        // More info about the software.
+        snprintf(msg, 150, "{ \"chipId\": %d, \"ip\": \"%s\", \"sw\": \"%s\" }",
+            nodemcuChipId, ipAddressFinal, PACKAGE_NAME
+        );
+        if (VERBOSE) {
+            Serial.print("Publish message: "); Serial.println(msg);
+        }
+        client.publish(outTopic, msg);
     }
 }
 
@@ -225,10 +236,6 @@ void setup() {
 }
 
 void loop() {
-    if (WiFi.status() != WL_CONNECTED) {
-        setupWifi();
-        return;
-    }
     if (!client.connected()) {
         reconnectMqtt();
     }
