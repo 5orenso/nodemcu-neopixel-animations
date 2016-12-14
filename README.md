@@ -41,13 +41,30 @@ Manual build and upload:
 $ pio run -e nodemcuv2 -t upload && pio serialports monitor -b 115200
 ```
 
+
+Build new binaries for over the air updates:
+```bash
+$ pio run -e nodemcuv2 && cp .pioenvs/nodemcuv2/firmware.bin bin/nodemcu/toilet-xmas/.
+
+
+```
+
 ## Software update Over The Air
 
-To update the NodeMCU with chip id `1548096`; post this to MQTT topic `awsiot_to_localgateway_toilet`.
+To update the NodeMCU with chip id `1548096`; post this to MQTT topic `awsiot_to_localgateway_toilet` and then check `localgateway_to_awsiot` to see if comes alive again.
 
+Toilet lights at the desk:
 ```json
 {
     "chipId": 1548096,
+    "doUpdate": 1
+}
+```
+
+Xmas tree:
+```json
+{
+    "chipId": 14618441,
     "doUpdate": 1
 }
 ```
