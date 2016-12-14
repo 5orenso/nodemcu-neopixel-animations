@@ -9,18 +9,24 @@ class NeoPixelAnimations {
         numPixels,
         // runningLight
         runningLightOffset,
+        *runningLightRangeOffsets,
         // randomSpark
         randomSparkFlag,
         randomSparkIndex,
         // randomSparkRange
-        randomSparkRangeFlag,
-        randomSparkRangeIndex,
+        // randomSparkRangeFlag,
+        // randomSparkRangeIndex,
+        *randomSparkRangeFlags,
+        *randomSparkRangeIndexs,
         // fadeInOut
         fadeInOutDirection,
-        fadeInOutRangeDirection,
+        *fadeInOutRangeDirections,
         // strobe
         strobeCounter,
         strobeOnFlag,
+        // strobeRange
+        *strobeRangeCounters,
+        *strobeOnRangeFlags,
         // cylonBounce
         cylonBounceOffset,
         cylonBounceDirection,
@@ -45,7 +51,7 @@ class NeoPixelAnimations {
     float
         // fadeInOut
         fadeInOutCounter,
-        fadeInOutRangeCounter,
+        *fadeInOutRangeCounters,
         // bouncing
         bouncingGravity,
         bouncingimpactVelocityStart,
@@ -68,13 +74,18 @@ class NeoPixelAnimations {
         NeoPixelAnimations(Adafruit_NeoPixel &pixelsInput, int pixelCount);
         void runningLight(int red, int green, int blue, int sizeOfSnake);
         void runningLightRange(int red, int green, int blue, int start, int end, int sizeOfSnake);
+        void runningLightRange(int red, int green, int blue, int start, int end, int sizeOfSnake, int index);
         void randomSpark(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking);
         void randomSparkRange(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking, int start, int end);
+        void randomSparkRange(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking, int start, int end, int index);
         void setAll(int red, int green, int blue);
         void setRange(int red, int green, int blue, int start, int end);
         void fadeInOut(int red, int green, int blue, int speed);
         void fadeInOutRange(int red, int green, int blue, int speed, int minBrightness, int start, int end);
+        void fadeInOutRange(int red, int green, int blue, int speed, int minBrightness, int start, int end, int index);
         void strobe(int red, int green, int blue, int totalStrobes, int delayPeriods);
+        void strobeRange(int red, int green, int blue, int totalStrobes, int delayPeriods, int start, int end);
+        void strobeRange(int red, int green, int blue, int totalStrobes, int delayPeriods, int start, int end, int index);
         void cylonBounce(int red, int green, int blue, int eyeSize);
         void comet(int red, int green, int blue, int cometSize, int cometTailSize);
         void theaterChase(int red, int green, int blue, int direction);
