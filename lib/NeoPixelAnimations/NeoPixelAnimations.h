@@ -8,40 +8,30 @@ class NeoPixelAnimations {
     int
         numPixels,
         // runningLight
-        runningLightOffset,
         *runningLightRangeOffsets,
-        // randomSpark
-        randomSparkFlag,
-        randomSparkIndex,
         // randomSparkRange
-        // randomSparkRangeFlag,
-        // randomSparkRangeIndex,
         *randomSparkRangeFlags,
         *randomSparkRangeIndexs,
-        // fadeInOut
-        fadeInOutDirection,
+        // fadeInOutRange
         *fadeInOutRangeDirections,
-        // strobe
-        strobeCounter,
-        strobeOnFlag,
         // strobeRange
         *strobeRangeCounters,
         *strobeOnRangeFlags,
         // cylonBounce
-        cylonBounceOffset,
-        cylonBounceDirection,
+        *cylonBounceOffset,
+        *cylonBounceDirection,
         // comet
-        cometOffset,
-        cometDirection,
+        *cometOffset,
+        *cometDirection,
         // theaterChase
-        theaterChaseOffset,
+        *theaterChaseRangeOffset,
         // theaterChaseRainbow
-        theaterChaseRainbowOffset,
-        theaterChaseRainbowWheelPos,
+        *theaterChaseRainbowOffset,
+        *theaterChaseRainbowWheelPos,
         // rainbowCycle
-        rainbowCycleWheelPos,
+        *rainbowCycleWheelPos,
         // fire
-        fireInit,
+        *fireInit,
         // bouncing
         bouncingInit,
         bouncingStartHeight,
@@ -87,12 +77,24 @@ class NeoPixelAnimations {
         void strobeRange(int red, int green, int blue, int totalStrobes, int delayPeriods, int start, int end);
         void strobeRange(int red, int green, int blue, int totalStrobes, int delayPeriods, int start, int end, int index);
         void cylonBounce(int red, int green, int blue, int eyeSize);
+        void cylonBounceRange(int red, int green, int blue, int eyeSize, int start, int end);
+        void cylonBounceRange(int red, int green, int blue, int eyeSize, int start, int end, int index);
         void comet(int red, int green, int blue, int cometSize, int cometTailSize);
+        void cometRange(int red, int green, int blue, int cometSize, int cometTailSize, int start, int end);
+        void cometRange(int red, int green, int blue, int cometSize, int cometTailSize, int start, int end, int index);
         void theaterChase(int red, int green, int blue, int direction);
+        void theaterChaseRange(int red, int green, int blue, int direction, int start, int end);
+        void theaterChaseRange(int red, int green, int blue, int direction, int start, int end, int index);
         void theaterChaseRainbow(int direction, int speed, int brightness);
+        void theaterChaseRainbowRange(int direction, int speed, int brightness, int start, int end);
+        void theaterChaseRainbowRange(int direction, int speed, int brightness, int start, int end, int index);
         byte* wheel(int wheelPos);
         void rainbowCycle(int direction, int speed, int brightness);
+        void rainbowCycleRange(int direction, int speed, int brightness, int start, int end);
+        void rainbowCycleRange(int direction, int speed, int brightness, int start, int end, int index);
         void fire(int cooling, int sparking);
+        void fireRange(int cooling, int sparking, int start, int end);
+        void fireRange(int cooling, int sparking, int start, int end, int index);
         void setPixelHeatColor(int Pixel, byte temperature);
         int bouncing(int red, int green, int blue, int objectCount, int randomColor);
 };

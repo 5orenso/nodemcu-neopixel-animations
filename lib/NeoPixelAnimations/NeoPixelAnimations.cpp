@@ -4,40 +4,32 @@ using namespace std;
 NeoPixelAnimations::NeoPixelAnimations(Adafruit_NeoPixel &pixelsInput, int pixelCount) {
     pixels = pixelsInput;
     numPixels = pixelCount;
-    // runningLight
-    runningLightOffset = 0;
     // runningLightRange
     runningLightRangeOffsets = new int[10];
-    // randomSpark
-    randomSparkFlag = 0;
-    randomSparkIndex = 0;
     // randomSparkRange
     randomSparkRangeFlags = new int[10];
     randomSparkRangeIndexs = new int[10];
-
-    // fadeInOut
-    fadeInOutCounter = 0;
-    fadeInOutDirection = 0;
     // fadeInOutRange
     fadeInOutRangeCounters = new float[10];
     fadeInOutRangeDirections = new int[10];
-    // strobe
-    strobeCounter = 0;
-    strobeOnFlag = 0;
     // strobeRange
     strobeRangeCounters = new int[10];
     strobeOnRangeFlags = new int[10];
     // cylonBounce
-    cylonBounceOffset = 0;
-    cylonBounceDirection = 0;
+    cylonBounceOffset = new int[10];
+    cylonBounceDirection = new int[10];
+    // comet
+    cometOffset = new int[10];
+    cometDirection = new int[10];
     // theaterChase
-    theaterChaseOffset = 0;
+    theaterChaseRangeOffset = new int[10];
     // theaterChaseRainbow
-    theaterChaseRainbowOffset = 0;
+    theaterChaseRainbowOffset = new int[10];
+    theaterChaseRainbowWheelPos = new int[10];
     // rainbowCycle
-    rainbowCycleWheelPos = 0;
+    rainbowCycleWheelPos = new int[10];
     // fire
-    fireInit = 0;
+    fireInit = new int[10];
     // heat[pixelCount];
     // bouncing
     bouncingInit = 0;
@@ -51,30 +43,9 @@ NeoPixelAnimations::NeoPixelAnimations(Adafruit_NeoPixel &pixelsInput, int pixel
     neopixelSet1.runningLight(r, g, b, 3)
 */
 void NeoPixelAnimations::runningLight(int red, int green, int blue, int sizeOfSnake) {
-    for (int i = 0; i < numPixels; i++) {
-        int color_r = 0,
-            color_g = 0,
-            color_b = 0;
-        if (i >= runningLightOffset && i < runningLightOffset + sizeOfSnake) {
-            color_r = red;
-            color_g = green;
-            color_b = blue;
-        }
-        // Serial.print("i="); Serial.print(i);
-        // Serial.print(", r="); Serial.print(color_r); Serial.print(", g="); Serial.print(color_g); Serial.print(", b="); Serial.println(color_b);
-        pixels.setPixelColor(i, color_r, color_g, color_b);
-    }
-    pixels.show();
-    runningLightOffset++;
-    if (runningLightOffset > numPixels - sizeOfSnake) {
-        runningLightOffset = 0;
-    }
+    int index = 0;
+    runningLightRange(red, green, blue, 0, numPixels, sizeOfSnake, index);
 }
-
-/*
-  Run light with 3 pixel in size.
-    neopixelSet1.runningLight(r, g, b, 3)
-*/
 void NeoPixelAnimations::runningLightRange(int red, int green, int blue, int start, int end, int sizeOfSnake) {
     int index = 0;
     runningLightRange(red, green, blue, start, end, sizeOfSnake, index);
@@ -90,8 +61,6 @@ void NeoPixelAnimations::runningLightRange(int red, int green, int blue, int sta
             color_g = green;
             color_b = blue;
         }
-        // Serial.print("i="); Serial.print(i);
-        // Serial.print(", r="); Serial.print(color_r); Serial.print(", g="); Serial.print(color_g); Serial.print(", b="); Serial.println(color_b);
         pixels.setPixelColor(i, color_r, color_g, color_b);
     }
     pixels.show();
@@ -111,38 +80,13 @@ void NeoPixelAnimations::runningLightRange(int red, int green, int blue, int sta
     neopixelSet1.randomSpark(r, g, b, 0, 0, 0)
 */
 void NeoPixelAnimations::randomSpark(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking) {
-    int color_r = red,
-        color_g = green,
-        color_b = blue;
-    if (randomSparkFlag == 1) {
-        randomSparkFlag = 0;
-        color_r = bgRed;
-        color_g = bgGreen;
-        color_b = bgBlue;
-    } else {
-        randomSparkIndex = random(numPixels);
-        randomSparkFlag = 1;
-    }
-    setAll(bgRed, bgGreen, bgBlue);
-    if (random(255) < sparking) {
-        pixels.setPixelColor(randomSparkIndex, color_r, color_g, color_b);
-    }
-    pixels.show();
-
+    int index = 0;
+    randomSparkRange(red, green, blue, bgRed, bgGreen, bgBlue, sparking, 0, numPixels, index);
 }
-
-/*
-  Spark on white background:
-    neopixelSet1.randomSpark(r, g, b, 10, 10, 10)
-
-  Spark on black background:
-    neopixelSet1.randomSpark(r, g, b, 0, 0, 0)
-*/
 void NeoPixelAnimations::randomSparkRange(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking, int start, int end) {
     int index = 0;
     randomSparkRange(red, green, blue, bgRed, bgGreen, bgBlue, sparking, start, end, index);
 }
-
 void NeoPixelAnimations::randomSparkRange(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking, int start, int end, int index) {
     int color_r = red,
         color_g = green,
@@ -194,30 +138,10 @@ void NeoPixelAnimations::setRange(int red, int green, int blue, int start, int e
     neopixelSet1.fadeInOut(r, g, b, 3);
 */
 void NeoPixelAnimations::fadeInOut(int red, int green, int blue, int speed) {
-    float r, g, b;
-    r = (fadeInOutCounter / 255) * red;
-    g = (fadeInOutCounter / 255) * green;
-    b = (fadeInOutCounter / 255) * blue;
-    setAll(round(r), round(g), round(b));
-    // pixels.show();
-
-    if (fadeInOutDirection < 1) {
-        fadeInOutCounter += speed;
-    } else {
-        fadeInOutCounter -= speed * 2;
-    }
-    if (fadeInOutCounter >= 255) {
-        fadeInOutDirection = 1;
-    } else if (fadeInOutCounter <= 0) {
-        fadeInOutCounter = 0;
-        fadeInOutDirection = 0;
-    }
-
+    int index = 0;
+    int minBrightness = 0;
+    fadeInOutRange(red, green, blue, speed, minBrightness, 0, numPixels, index);
 }
-
-/*
-    neopixelSet1.fadeInOutRange(r, g, b, 3, 50, 1, 5, settings);
-*/
 void NeoPixelAnimations::fadeInOutRange(int red, int green, int blue, int speed, int minBrightness, int start, int end) {
     int index = 0;
     fadeInOutRange(red, green, blue, speed, minBrightness, start, end, index);
@@ -245,38 +169,13 @@ void NeoPixelAnimations::fadeInOutRange(int red, int green, int blue, int speed,
     neopixelSet3.strobe(r, g, b, 5, 5);
 */
 void NeoPixelAnimations::strobe(int red, int green, int blue, int totalStrobes, int delayPeriods) {
-    int r = red,
-        g = green,
-        b = blue;
-    if (strobeOnFlag == 0) {
-        strobeOnFlag = 1;
-        r = 0;
-        g = 0;
-        b = 0;
-    } else {
-        strobeOnFlag = 0;
-    }
-    setAll(r, g, b);
-    // pixels.show();
-    strobeCounter++;
-    if (strobeCounter > (totalStrobes * 2)) {
-        strobeOnFlag = 0;
-        if (strobeCounter >= (totalStrobes * delayPeriods)) {
-            strobeOnFlag = 1;
-            strobeCounter = 0;
-        }
-    }
-
+    int index = 0;
+    strobeRange(red, green, blue, totalStrobes, delayPeriods, 0, numPixels, index);
 }
-
-/*
-    neopixelSet3.strobe(r, g, b, 5, 5);
-*/
 void NeoPixelAnimations::strobeRange(int red, int green, int blue, int totalStrobes, int delayPeriods, int start, int end) {
     int index = 0;
     strobeRange(red, green, blue, totalStrobes, delayPeriods, start, end, index);
 }
-
 void NeoPixelAnimations::strobeRange(int red, int green, int blue, int totalStrobes, int delayPeriods, int start, int end, int index) {
     int r = red,
         g = green,
@@ -305,56 +204,71 @@ void NeoPixelAnimations::strobeRange(int red, int green, int blue, int totalStro
     neopixelSet1.cylonBounce(r, g, b, 4);
 */
 void NeoPixelAnimations::cylonBounce(int red, int green, int blue, int eyeSize) {
-    setAll(0, 0, 0);
+    int index = 0;
+    cylonBounceRange(red, green, blue, eyeSize, 0, numPixels, index);
+}
+void NeoPixelAnimations::cylonBounceRange(int red, int green, int blue, int eyeSize, int start, int end) {
+    int index = 0;
+    cylonBounceRange(red, green, blue, eyeSize, start, end, index);
+}
+void NeoPixelAnimations::cylonBounceRange(int red, int green, int blue, int eyeSize, int start, int end, int index) {
+    setRange(0, 0, 0, start, end);
     for (int a = 2; a > 0; a--) {
-        pixels.setPixelColor(cylonBounceOffset - a, red / (a * 5), green / (a * 5), blue / (a * 5));
+        pixels.setPixelColor(cylonBounceOffset[index] - a, red / (a * 5), green / (a * 5), blue / (a * 5));
     }
     for (int j = 0; j < eyeSize; j++) {
-        pixels.setPixelColor(cylonBounceOffset + j, red, green, blue);
+        pixels.setPixelColor(cylonBounceOffset[index] + j, red, green, blue);
     }
     for (int b = 1; b <= 2; b++) {
-        pixels.setPixelColor(cylonBounceOffset - 1 + eyeSize + b, red / (b * 5), green / (b * 5), blue / (b * 5));
+        pixels.setPixelColor(cylonBounceOffset[index] - 1 + eyeSize + b, red / (b * 5), green / (b * 5), blue / (b * 5));
     }
     pixels.show();
-    if (cylonBounceDirection == 1) {
-        cylonBounceOffset--;
+    if (cylonBounceDirection[index] == 1) {
+        cylonBounceOffset[index]--;
     } else {
-        cylonBounceOffset++;
+        cylonBounceOffset[index]++;
     }
-    if (cylonBounceOffset > numPixels - eyeSize - 2) {
-        cylonBounceDirection = 1;
-    } else if (cylonBounceOffset < 0 + 1) {
-        cylonBounceDirection = 0;
+    if (cylonBounceOffset[index] > end - eyeSize - 2) {
+        cylonBounceDirection[index] = 1;
+    } else if (cylonBounceOffset[index] < start + 1) {
+        cylonBounceDirection[index] = start;
     }
-
 }
 
 /*
     neopixelSet1.comet(r, g, b, 2, 8);
 */
 void NeoPixelAnimations::comet(int red, int green, int blue, int cometSize, int cometTailSize) {
-    setAll(0, 0, 0);
+    int index = 0;
+    cometRange(red, green, blue, cometSize, cometTailSize, 0, numPixels, index);
+}
+void NeoPixelAnimations::cometRange(int red, int green, int blue, int cometSize, int cometTailSize, int start, int end) {
+    int index = 0;
+    cometRange(red, green, blue, cometSize, cometTailSize, start, end, index);
+}
+void NeoPixelAnimations::cometRange(int red, int green, int blue, int cometSize, int cometTailSize, int start, int end, int index) {
+    setRange(0, 0, 0, start, end);
     for (int a = 0; a < cometSize; a++) {
-        pixels.setPixelColor(cometOffset + a, red, green, blue);
+        pixels.setPixelColor(cometOffset[index] + a, red, green, blue);
     }
     for (int j = 0; j < cometTailSize; j++) {
         int bright = random(2, 100);
-        if (cometDirection == 1) {
-            pixels.setPixelColor(cometOffset + cometSize + j, red / bright, green / bright, blue / bright);
+        if (cometDirection[index] == 1) {
+            pixels.setPixelColor(cometOffset[index] + cometSize + j, red / bright, green / bright, blue / bright);
         } else {
-            pixels.setPixelColor(cometOffset - j, red / bright, green / bright, blue / bright);
+            pixels.setPixelColor(cometOffset[index] - j, red / bright, green / bright, blue / bright);
         }
     }
     pixels.show();
-    if (cometDirection == 1) {
-        cometOffset--;
+    if (cometDirection[index] == 1) {
+        cometOffset[index]--;
     } else {
-        cometOffset++;
+        cometOffset[index]++;
     }
-    if (cometOffset > numPixels - cometSize - 2) {
-        cometDirection = 1;
-    } else if (cometOffset < 0 + 1) {
-        cometDirection = 0;
+    if (cometOffset[index] > end - cometSize - 2) {
+        cometDirection[index] = 1;
+    } else if (cometOffset[index] < start + 1) {
+        cometDirection[index] = 0;
     }
 
 }
@@ -364,62 +278,33 @@ void NeoPixelAnimations::comet(int red, int green, int blue, int cometSize, int 
     neopixelSet1.theaterChase(r, g, b, 1);
 */
 void NeoPixelAnimations::theaterChase(int red, int green, int blue, int direction) {
-    for(int i = 0; i < numPixels; i++) {
-        pixels.setPixelColor(i,
-            ((sin(i + theaterChaseOffset) * 127 + 128) / 255) * red,
-            ((sin(i + theaterChaseOffset) * 127 + 128) / 255) * green,
-            ((sin(i + theaterChaseOffset) * 127 + 128) / 255) * blue
-        );
-    }
-    pixels.show();
-    if (direction == 1) {
-        theaterChaseOffset++;
-        if (theaterChaseOffset > numPixels) {
-            theaterChaseOffset = 0;
-        }
-    } else {
-        theaterChaseOffset--;
-        if (theaterChaseOffset < 0) {
-            theaterChaseOffset = numPixels;
-        }
-    }
-
+    int index = 0;
+    theaterChaseRange(red, green, blue, direction, 0, numPixels, index);
 }
-
-/*
-    neopixelSet1.theaterChaseRainbow(1, 3, 10);
-*/
-void NeoPixelAnimations::theaterChaseRainbow(int direction, int speed, int brightness) {
-    byte *c;
-    for(int i = 0; i < numPixels; i++) {
-        c = wheel(((i * 256 / numPixels) + theaterChaseRainbowWheelPos) & 255);
+void NeoPixelAnimations::theaterChaseRange(int red, int green, int blue, int direction, int start, int end) {
+    int index = 0;
+    theaterChaseRange(red, green, blue, direction, start, end, index);
+}
+void NeoPixelAnimations::theaterChaseRange(int red, int green, int blue, int direction, int start, int end, int index) {
+    for(int i = start; i < end; i++) {
         pixels.setPixelColor(i,
-            ((sin(i + theaterChaseRainbowOffset) * 127 + 128) / 255) * c[0]/brightness,
-            ((sin(i + theaterChaseRainbowOffset) * 127 + 128) / 255) * c[1]/brightness,
-            ((sin(i + theaterChaseRainbowOffset) * 127 + 128) / 255) * c[2]/brightness
+            ((sin(i + theaterChaseRangeOffset[index]) * 127 + 128) / 255) * red,
+            ((sin(i + theaterChaseRangeOffset[index]) * 127 + 128) / 255) * green,
+            ((sin(i + theaterChaseRangeOffset[index]) * 127 + 128) / 255) * blue
         );
     }
     pixels.show();
     if (direction == 1) {
-        theaterChaseRainbowOffset++;
-        if (theaterChaseRainbowOffset > numPixels) {
-            theaterChaseRainbowOffset = 0;
-        }
-        theaterChaseRainbowWheelPos += speed;
-        if (theaterChaseRainbowWheelPos > 256 * 5) {
-            theaterChaseRainbowWheelPos = 0;
+        theaterChaseRangeOffset[index]++;
+        if (theaterChaseRangeOffset[index] > (end - start)) {
+            theaterChaseRangeOffset[index] = 0;
         }
     } else {
-        theaterChaseRainbowOffset--;
-        if (theaterChaseRainbowOffset < 0) {
-            theaterChaseRainbowOffset = numPixels;
-        }
-        theaterChaseRainbowWheelPos -= speed;
-        if (theaterChaseRainbowWheelPos < 0) {
-            theaterChaseRainbowWheelPos = 256 * 5;
+        theaterChaseRangeOffset[index]--;
+        if (theaterChaseRangeOffset[index] < 0) {
+            theaterChaseRangeOffset[index] = (end - start);
         }
     }
-
 }
 
 /*
@@ -444,8 +329,50 @@ byte* NeoPixelAnimations::wheel(int wheelPos) {
         c[1]=wheelPos * 3;
         c[2]=255 - wheelPos * 3;
     }
-
     return c;
+}
+
+/*
+    neopixelSet1.theaterChaseRainbow(1, 3, 10);
+*/
+void NeoPixelAnimations::theaterChaseRainbow(int direction, int speed, int brightness) {
+    int index = 0;
+    theaterChaseRainbowRange(direction, speed, brightness, 0, numPixels, index);
+}
+void NeoPixelAnimations::theaterChaseRainbowRange(int direction, int speed, int brightness, int start, int end) {
+    int index = 0;
+    theaterChaseRainbowRange(direction, speed, brightness, start, end, index);
+}
+void NeoPixelAnimations::theaterChaseRainbowRange(int direction, int speed, int brightness, int start, int end, int index) {
+    byte *c;
+    for(int i = start; i < end; i++) {
+        c = wheel(((i * 256 / (end - start)) + theaterChaseRainbowWheelPos[index]) & 255);
+        pixels.setPixelColor(i,
+            ((sin(i + theaterChaseRainbowOffset[index]) * 127 + 128) / 255) * c[0] / brightness,
+            ((sin(i + theaterChaseRainbowOffset[index]) * 127 + 128) / 255) * c[1] / brightness,
+            ((sin(i + theaterChaseRainbowOffset[index]) * 127 + 128) / 255) * c[2] / brightness
+        );
+    }
+    pixels.show();
+    if (direction == 1) {
+        theaterChaseRainbowOffset[index]++;
+        if (theaterChaseRainbowOffset[index] > (end - start)) {
+            theaterChaseRainbowOffset[index] = 0;
+        }
+        theaterChaseRainbowWheelPos[index] += speed;
+        if (theaterChaseRainbowWheelPos[index] > 256 * 5) {
+            theaterChaseRainbowWheelPos[index] = 0;
+        }
+    } else {
+        theaterChaseRainbowOffset[index]--;
+        if (theaterChaseRainbowOffset[index] < 0) {
+            theaterChaseRainbowOffset[index] = (end - start);
+        }
+        theaterChaseRainbowWheelPos[index] -= speed;
+        if (theaterChaseRainbowWheelPos[index] < 0) {
+            theaterChaseRainbowWheelPos[index] = 256 * 5;
+        }
+    }
 }
 
 /*
@@ -455,62 +382,32 @@ byte* NeoPixelAnimations::wheel(int wheelPos) {
       neopixelSet1.rainbowCycle(0, 3, 10);
 */
 void NeoPixelAnimations::rainbowCycle(int direction, int speed, int brightness) {
+    int index = 0;
+    rainbowCycleRange(direction, speed, brightness, 0, numPixels, index);
+}
+void NeoPixelAnimations::rainbowCycleRange(int direction, int speed, int brightness, int start, int end) {
+    int index = 0;
+    rainbowCycleRange(direction, speed, brightness, start, end, index);
+}
+void NeoPixelAnimations::rainbowCycleRange(int direction, int speed, int brightness, int start, int end, int index) {
     byte *c;
-    for(int i = 0; i < numPixels; i++) {
+    for(int i = start; i < end; i++) {
         // c = wheel(rainbowCycleWheelPos + i);
-        c = wheel(((i * 256 / numPixels) + rainbowCycleWheelPos) & 255);
+        c = wheel(((i * 256 / (end - start)) + rainbowCycleWheelPos[index]) & 255);
         pixels.setPixelColor(i, c[0]/brightness, c[1]/brightness, c[2]/brightness);
     }
     pixels.show();
     if (direction == 1) {
-        rainbowCycleWheelPos += speed;
-        if (rainbowCycleWheelPos > 256 * 5) {
-            rainbowCycleWheelPos = 0;
+        rainbowCycleWheelPos[index] += speed;
+        if (rainbowCycleWheelPos[index] > 256 * 5) {
+            rainbowCycleWheelPos[index] = 0;
         }
     } else {
-        rainbowCycleWheelPos -= speed;
-        if (rainbowCycleWheelPos < 0) {
-            rainbowCycleWheelPos = 256 * 5;
+        rainbowCycleWheelPos[index] -= speed;
+        if (rainbowCycleWheelPos[index] < 0) {
+            rainbowCycleWheelPos[index] = 256 * 5;
         }
     }
-
-}
-
-/*
-  Random fire for a NeoPixel circle with 24 pixels
-    neopixelSet1.fire(80, 80);
-*/
-void NeoPixelAnimations::fire(int cooling, int sparking) {
-    int cooldown;
-    // heat[pixelCount];
-    if (fireInit != 1) {
-        heat = new byte[numPixels];
-        fireInit = 1;
-    }
-    // Step 1.  Cool down every cell a little
-    for (int i = 0; i < numPixels; i++) {
-        cooldown = random(0, ((cooling * 10) / numPixels) + 2);
-        if(cooldown > heat[i]) {
-            heat[i] = 0;
-        } else {
-            heat[i] = heat[i] - cooldown;
-        }
-    }
-    // Step 2.  Heat from each cell drifts 'up' and diffuses a little
-    for (int k = numPixels - 1; k >= 2; k--) {
-        heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
-    }
-    // Step 3.  Randomly ignite new 'sparks' near the bottom
-    if (random(255) < sparking) {
-        int y = random(7);
-        heat[y] = heat[y] + random(160,255);
-        //heat[y] = random(160,255);
-    }
-    // Step 4.  Convert heat to LED colors
-    for (int j = 0; j < numPixels; j++) {
-        setPixelHeatColor(j, heat[j]);
-    }
-    pixels.show();
 
 }
 
@@ -531,7 +428,51 @@ void NeoPixelAnimations::setPixelHeatColor(int pixel, byte temperature) {
     } else {                               // coolest
         pixels.setPixelColor(pixel, heatramp, 0, 0);
     }
+}
 
+/*
+  Random fire for a NeoPixel circle with 24 pixels
+    neopixelSet1.fire(80, 80);
+*/
+void NeoPixelAnimations::fire(int cooling, int sparking) {
+    int index = 0;
+    fireRange(cooling, sparking, 0, numPixels, index);
+}
+void NeoPixelAnimations::fireRange(int cooling, int sparking, int start, int end) {
+    int index = 0;
+    fireRange(cooling, sparking, start, end, index);
+}
+void NeoPixelAnimations::fireRange(int cooling, int sparking, int start, int end, int index) {
+    int cooldown;
+    // heat[pixelCount];
+    if (fireInit[index] != 1) {
+        heat = new byte[end-start];
+        fireInit[index] = 1;
+    }
+    // Step 1.  Cool down every cell a little
+    for (int i = start; i < end; i++) {
+        cooldown = random(start, ((cooling * 10) / end) + 2);
+        if(cooldown > heat[i]) {
+            heat[i] = 0;
+        } else {
+            heat[i] = heat[i] - cooldown;
+        }
+    }
+    // Step 2.  Heat from each cell drifts 'up' and diffuses a little
+    for (int k = end - 1; k >= start; k--) {
+        heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
+    }
+    // Step 3.  Randomly ignite new 'sparks' near the bottom
+    if (random(255) < sparking) {
+        int y = random(7);
+        heat[y] = heat[y] + random(160,255);
+        //heat[y] = random(160,255);
+    }
+    // Step 4.  Convert heat to LED colors
+    for (int j = start; j < end; j++) {
+        setPixelHeatColor(j, heat[j]);
+    }
+    pixels.show();
 }
 
 /*
