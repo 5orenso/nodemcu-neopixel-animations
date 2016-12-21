@@ -39,8 +39,36 @@ NeoPixelAnimations::NeoPixelAnimations(Adafruit_NeoPixel &pixelsInput, int pixel
 }
 
 /*
+  Set all pixels to a specific color.
+    neopixelSet1.setAll(r, g, b)
+*/
+void NeoPixelAnimations::setAll(int red, int green, int blue) {
+    // Serial.print("red="); Serial.print(red); Serial.print(", green="); Serial.print(green); Serial.print(", blue="); Serial.println(blue);
+    for(int i = 0; i < numPixels; i++ ) {
+        pixels.setPixelColor(i, red, green, blue);
+    }
+    pixels.show();
+
+}
+
+/*
+  Set range of pixels to a specific color.
+    neopixelSet1.setRange(r, g, b, start, end)
+*/
+void NeoPixelAnimations::setRange(int red, int green, int blue, int start, int end) {
+    // Serial.print("red="); Serial.print(red); Serial.print(", green="); Serial.print(green); Serial.print(", blue="); Serial.println(blue);
+    for(int i = start; i <= end; i++ ) {
+        pixels.setPixelColor(i, red, green, blue);
+    }
+    pixels.show();
+
+}
+
+/*
   Run light with 3 pixel in size.
     neopixelSet1.runningLight(r, g, b, 3)
+    neopixelSet1.runningLightRange(red, green, blue, start, end, 3);
+    neopixelSet1.runningLightRange(red, green, blue, start, end, 3, index);
 */
 void NeoPixelAnimations::runningLight(int red, int green, int blue, int sizeOfSnake) {
     int index = 0;
@@ -50,7 +78,6 @@ void NeoPixelAnimations::runningLightRange(int red, int green, int blue, int sta
     int index = 0;
     runningLightRange(red, green, blue, start, end, sizeOfSnake, index);
 }
-
 void NeoPixelAnimations::runningLightRange(int red, int green, int blue, int start, int end, int sizeOfSnake, int index) {
     for (int i = start; i <= end; i++) {
         int color_r = 0,
@@ -78,6 +105,10 @@ void NeoPixelAnimations::runningLightRange(int red, int green, int blue, int sta
 
   Spark on black background:
     neopixelSet1.randomSpark(r, g, b, 0, 0, 0)
+
+  Spark on a specific color and range:
+    neopixelSet1.randomSparkRange(200, 200, 200, red, green, blue, 5, start, end);
+    neopixelSet1.randomSparkRange(200, 200, 200, red, green, blue, 5, start, end, index);
 */
 void NeoPixelAnimations::randomSpark(int red, int green, int blue, int bgRed, int bgGreen, int bgBlue, int sparking) {
     int index = 0;
@@ -109,33 +140,10 @@ void NeoPixelAnimations::randomSparkRange(int red, int green, int blue, int bgRe
 }
 
 /*
-  Set all pixels to a specific color.
-    neopixelSet1.setAll(r, g, b)
-*/
-void NeoPixelAnimations::setAll(int red, int green, int blue) {
-    // Serial.print("red="); Serial.print(red); Serial.print(", green="); Serial.print(green); Serial.print(", blue="); Serial.println(blue);
-    for(int i = 0; i < numPixels; i++ ) {
-        pixels.setPixelColor(i, red, green, blue);
-    }
-    pixels.show();
-
-}
-
-/*
-  Set range of pixels to a specific color.
-    neopixelSet1.setRange(r, g, b, start, end)
-*/
-void NeoPixelAnimations::setRange(int red, int green, int blue, int start, int end) {
-    // Serial.print("red="); Serial.print(red); Serial.print(", green="); Serial.print(green); Serial.print(", blue="); Serial.println(blue);
-    for(int i = start; i <= end; i++ ) {
-        pixels.setPixelColor(i, red, green, blue);
-    }
-    pixels.show();
-
-}
-
-/*
     neopixelSet1.fadeInOut(r, g, b, 3);
+    neopixelSet1.fadeInOutRange(r, g, b, 1, 100, start, end);
+    neopixelSet1.fadeInOutRange(r, g, b, 1, 100, start, end, index);
+
 */
 void NeoPixelAnimations::fadeInOut(int red, int green, int blue, int speed) {
     int index = 0;
@@ -167,6 +175,8 @@ void NeoPixelAnimations::fadeInOutRange(int red, int green, int blue, int speed,
 
 /*
     neopixelSet3.strobe(r, g, b, 5, 5);
+    neopixelSet1.strobeRange(r, g, b, 5, 5, start, end);
+    neopixelSet1.strobeRange(r, g, b, 5, 5, start, end, index);
 */
 void NeoPixelAnimations::strobe(int red, int green, int blue, int totalStrobes, int delayPeriods) {
     int index = 0;
@@ -270,9 +280,7 @@ void NeoPixelAnimations::cometRange(int red, int green, int blue, int cometSize,
     } else if (cometOffset[index] < start + 1) {
         cometDirection[index] = 0;
     }
-
 }
-
 
 /*
     neopixelSet1.theaterChase(r, g, b, 1);
@@ -286,7 +294,7 @@ void NeoPixelAnimations::theaterChaseRange(int red, int green, int blue, int dir
     theaterChaseRange(red, green, blue, direction, start, end, index);
 }
 void NeoPixelAnimations::theaterChaseRange(int red, int green, int blue, int direction, int start, int end, int index) {
-    for(int i = start; i < end; i++) {
+    for(int i = start; i <= end; i++) {
         pixels.setPixelColor(i,
             ((sin(i + theaterChaseRangeOffset[index]) * 127 + 128) / 255) * red,
             ((sin(i + theaterChaseRangeOffset[index]) * 127 + 128) / 255) * green,
@@ -310,7 +318,6 @@ void NeoPixelAnimations::theaterChaseRange(int red, int green, int blue, int dir
 /*
     byte *c;
     c = wheel(((i * 256 / numPixels) + theaterChaseRainbowWheelPos) & 255);
-
 */
 byte* NeoPixelAnimations::wheel(int wheelPos) {
     static byte c[3];
