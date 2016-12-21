@@ -611,7 +611,8 @@ void loop() {
     if (now - lastLoop3 > 100) {
         lastLoop3 = now;
         if (yellowLight) {
-            neopixelSet1.runningLightRange(colorYellowRed, colorYellowGreen, colorYellowBlue, startYellow, endYellow, 2, menIndex);
+            neopixelSet1.theaterChaseRange(colorYellowRed, colorYellowGreen, colorYellowBlue, 1, startYellow, endYellow, menIndex);
+            // neopixelSet1.runningLightRange(colorYellowRed, colorYellowGreen, colorYellowBlue, startYellow, endYellow, 2, menIndex);
         } else {
             for (int i = 0; i < numberOfSets; i++) {
                 int startPos = (i * (endWomen + 1));

@@ -61,19 +61,23 @@ NeoPixelAnimations neopixelSet1 = NeoPixelAnimations(pixels1, NUMPIXELS_1);
 int prevTime,
     lastLoop1,
     lastLoop2,
-    lastLoop3;
+    lastLoop3,
+    lastLoop4,
+    menLoop,
+    womenLoop;
 
-long startSessionSwitch;
-long startWomenSessionSwitch;
+long startSessionSwitch, startSessionSwitchGreen, startWomenSessionSwitch, startWomenSessionSwitchGreen;
 
 bool redLight, greenLight, yellowLight;
 bool redLightWomen, greenLightWomen;
-int menLightMode, womenLightMode;
+int menLightMode, menLightModeGreen, womenLightMode, womenLightModeGreen;
 
 int numberOfSets = 5;
 
-int menIndex = 0;
-int womenIndex = 1;
+int menIndex = 1;
+int womenIndex = 2;
+int menIndicatorIndex = 3;
+int womenIndicatorIndex = 4;
 
 int startYellow = 0;
 int endYellow = 2;
@@ -205,6 +209,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
         }
         redLight = false;
         greenLight = true;
+        startSessionSwitchGreen = millis();
         mqttUtil.publishKeyValueInt(client, "redLight", 0);
         mqttUtil.publishKeyValueInt(client, "greenLight", 1);
     }
@@ -237,6 +242,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
         }
         redLightWomen = false;
         greenLightWomen = true;
+        startWomenSessionSwitchGreen = millis();
         mqttUtil.publishKeyValueInt(client, "redLightWomen", 0);
         mqttUtil.publishKeyValueInt(client, "greenLightWomen", 1);
     }
@@ -336,6 +342,18 @@ void loop() {
             } else {
                 menLightMode = 1;
             }
+        } else if (greenLight) {
+            if (now - startSessionSwitchGreen > (1000 * 60 * 15)) { // > 30 min session
+                menLightModeGreen = 5;
+            } else if (now - startSessionSwitchGreen > (1000 * 60 * 10)) { // > 20 min session
+                menLightModeGreen = 4;
+            } else if (now - startSessionSwitchGreen > (1000 * 60 * 5)) { // > 10 min session
+                menLightModeGreen = 3;
+            } else if (now - startSessionSwitchGreen > (1000 * 60 * 3)) { // > 5 min session
+                menLightModeGreen = 2;
+            } else {
+                menLightModeGreen = 1;
+            }
         }
         if (redLightWomen) {
             if (now - startWomenSessionSwitch > (1000 * 60 * 15)) { // > 30 min session
@@ -348,6 +366,18 @@ void loop() {
                 womenLightMode = 2;
             } else {
                 womenLightMode = 1;
+            }
+        } else if (greenLightWomen) {
+            if (now - startWomenSessionSwitchGreen > (1000 * 60 * 15)) { // > 30 min session
+                womenLightModeGreen = 5;
+            } else if (now - startWomenSessionSwitchGreen > (1000 * 60 * 10)) { // > 20 min session
+                womenLightModeGreen = 4;
+            } else if (now - startWomenSessionSwitchGreen > (1000 * 60 * 5)) { // > 10 min session
+                womenLightModeGreen = 3;
+            } else if (now - startWomenSessionSwitchGreen > (1000 * 60 * 3)) { // > 5 min session
+                womenLightModeGreen = 2;
+            } else {
+                womenLightModeGreen = 1;
             }
         }
 
@@ -367,9 +397,13 @@ void loop() {
                     }
                     break;
                 case 3:
-                    for (int i = 0; i < numberOfSets; i++) {
-                        int startPos = (i * (endWomen + 1));
-                        neopixelSet1.fadeInOutRange(colorRedRed, colorRedGreen, colorRedBlue, 10, 100, start + startPos, end + startPos, menIndex);
+                    if (now - menLoop > 40) {
+                        menLoop = millis();
+                        for (int i = 0; i < numberOfSets; i++) {
+                            int startPos = (i * (endWomen + 1));
+                            // neopixelSet1.fadeInOutRange(colorRedRed, colorRedGreen, colorRedBlue, 10, 100, start + startPos, end + startPos, menIndex);
+                            neopixelSet1.theaterChaseRange(colorRedRed, colorRedGreen, colorRedBlue, 1, start + startPos, end + startPos, menIndex);
+                        }
                     }
                     break;
                 case 4:
@@ -378,19 +412,72 @@ void loop() {
                         neopixelSet1.fadeInOutRange(colorRedRed, colorRedGreen, colorRedBlue, 20, 50, start + startPos, end + startPos, menIndex);
                     }
                     break;
+                case 5:
+                    if (now - menLoop > 40) {
+                        menLoop = millis();
+                        for (int i = 0; i < numberOfSets; i++) {
+                            int startPos = (i * (endWomen + 1));
+                            neopixelSet1.strobeRange(colorRedRed, colorRedGreen, colorRedBlue, 5, 5, start + startPos, end + startPos, menIndex);
+                        }
+                    }
+                    break;
+
             }
         } else if (greenLight) {
-            for (int i = 0; i < numberOfSets; i++) {
-                int startPos = (i * (endWomen + 1));
-                neopixelSet1.randomSparkRange(200, 200, 200, colorGreenRed, colorGreenGreen, colorGreenBlue, 5, start + startPos, end + startPos, menIndex);
+            switch (menLightModeGreen) {
+                case 1:
+                    for (int i = 0; i < numberOfSets; i++) {
+                        int startPos = (i * (endWomen + 1));
+                        neopixelSet1.randomSparkRange(250, 250, 250, colorGreenRed, colorGreenGreen, colorGreenBlue, 5, start + startPos, end + startPos, menIndex);
+                    }
+                    break;
+                case 2:
+                    for (int i = 0; i < numberOfSets; i++) {
+                        int startPos = (i * (endWomen + 1));
+                        neopixelSet1.randomSparkRange(250, 250, 250, colorGreenRed, colorGreenGreen, colorGreenBlue, 10, start + startPos, end + startPos, menIndex);
+                    }
+                    break;
+                case 3:
+                    if (now - menLoop > 100) {
+                        menLoop = millis();
+                        for (int i = 0; i < numberOfSets; i++) {
+                            int startPos = (i * (endWomen + 1));
+                            neopixelSet1.fadeInOutRange(colorGreenRed, colorGreenGreen, colorGreenBlue, 1, 100, start + startPos, end + startPos, menIndex);
+                        }
+                    }
+                    break;
+                case 4:
+                    if (now - menLoop > 100) {
+                        menLoop = millis();
+                        for (int i = 0; i < numberOfSets; i++) {
+                            int startPos = (i * (endWomen + 1));
+                            neopixelSet1.theaterChaseRange(colorGreenRed, colorGreenGreen, colorGreenBlue, 1, start + startPos, end + startPos, menIndex);
+                        }
+                    }
+                    break;
+                case 5:
+                    if (now - menLoop > 100) {
+                        menLoop = millis();
+                        for (int i = 0; i < numberOfSets; i++) {
+                            int startPos = (i * (endWomen + 1));
+                            neopixelSet1.theaterChaseRange(colorGreenRed, colorGreenGreen, colorGreenBlue, 1, start + startPos, end + startPos, menIndex);
+                        }
+                    }
+                    break;
             }
         } else {
-            for (int i = 0; i < numberOfSets; i++) {
-                int startPos = (i * (endWomen + 1));
-                // neopixelSet1.setRange(colorMenRed, colorMenGreen, colorMenBlue, startMenIndicator + startPos, endMenIndicator + startPos);
-                neopixelSet1.randomSparkRange(100, 100, 200, 20, 20, 20, 10, start + startPos, end + startPos, menIndex);
+            if (now - menLoop > 100) {
+                menLoop = millis();
+                // No status.
+                for (int i = 0; i < numberOfSets; i++) {
+                    int startPos = (i * (endWomen + 1));
+                    // neopixelSet1.randomSparkRange(200, 100, 100, 20, 20, 20, 10, startWomen + startPos, endWomen + startPos, womenIndex);
+                    neopixelSet1.theaterChaseRange(50, 50, 50, 1, start + startPos, end + startPos, menIndex);
+                    // neopixelSet1.theaterChaseRainbowRange(1, 10, 4, start + startPos, end + startPos, menIndex);
+                }
             }
         }
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (redLightWomen) {
             switch (womenLightMode) {
@@ -436,43 +523,32 @@ void loop() {
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     if (now - lastLoop2 > 40) {
         lastLoop2 = now;
-        if (redLight) {
-            switch (menLightMode) {
-                case 5:
-                    for (int i = 0; i < numberOfSets; i++) {
-                        int startPos = (i * (endWomen + 1));
-                        neopixelSet1.strobeRange(colorRedRed, colorRedGreen, colorRedBlue, 5, 5, start + startPos, end + startPos, womenIndex);
-                    }
-                    break;
-            }
-        }
-        if (redLightWomen) {
-            switch (womenLightMode) {
-                case 5:
-                    for (int i = 0; i < numberOfSets; i++) {
-                        int startPos = (i * (endWomen + 1));
-                        neopixelSet1.strobeRange(colorRedRed, colorRedGreen, colorRedBlue, 5, 5,startWomen + startPos, endWomen + startPos, womenIndex);
-                    }
-                    break;
-            }
-        }
     }
 
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     if (now - lastLoop3 > 100) {
         lastLoop3 = now;
         if (yellowLight) {
-            for (int i = 0; i < numberOfSets; i++) {
-                int startPos = (i * (endWomen + 1));
-                neopixelSet1.runningLightRange(colorYellowRed, colorYellowGreen, colorYellowBlue, startYellow + startPos, endYellow + startPos, 1, menIndex + i);
-            }
+            neopixelSet1.runningLightRange(colorYellowRed, colorYellowGreen, colorYellowBlue, startYellow, endYellow, 2, menIndex);
         } else {
             for (int i = 0; i < numberOfSets; i++) {
                 int startPos = (i * (endWomen + 1));
                 neopixelSet1.setRange(colorMenRed, colorMenGreen, colorMenBlue, startMenIndicator + startPos, endMenIndicator + startPos);
-                neopixelSet1.setRange(colorWomenRed, colorWomenGreen, colorWomenBlue, startWomenIndicator + startPos, endWomenIndicator + startPos);
+                // neopixelSet1.theaterChaseRange(colorMenRed, colorMenGreen, colorMenBlue, 0, startMenIndicator + startPos, endMenIndicator + startPos, menIndicatorIndex);
             }
         }
+        for (int i = 0; i < numberOfSets; i++) {
+            int startPos = (i * (endWomen + 1));
+            neopixelSet1.setRange(colorWomenRed, colorWomenGreen, colorWomenBlue, startWomenIndicator + startPos, endWomenIndicator + startPos);
+            // neopixelSet1.theaterChaseRange(colorWomenRed, colorWomenGreen, colorWomenBlue, 0, startWomenIndicator + startPos, endWomenIndicator + startPos, womenIndicatorIndex);
+        }
+    }
+
+    // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+    if (now - lastLoop4 > 5000) {
+        lastLoop4 = now;
+        Serial.println(".");
+
     }
 
     // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
